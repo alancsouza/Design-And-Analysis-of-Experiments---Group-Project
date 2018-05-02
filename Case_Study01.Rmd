@@ -1,0 +1,115 @@
+---
+title: 'Estudo de caso 01: Desempenho de uma nova versão de software'
+author: "Alan Souza, Alex Assis, Luíza Guimarães e Patrícia Lucas"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: true
+---
+\vspace{18cm}
+\centering
+ENDEREÇO VEM AQUI
+
+\newpage
+\tableofcontents
+\newpage
+\raggedright
+
+```{r, include = 'false'}
+setwd("C:/Users/Alan/Desktop/Mestrado UFMG/Disciplinas 2º semestre/Design and Analysis of Experiments/Group Projects/Estudo de caso I")
+require("TeachingDemos")
+
+```
+
+
+## Resumo
+Este documento apresenta uma análise sobre a comparação de duas versões de software
+
+### Descrição do problema
+Os estudantes estão interessados em comparar o desempenho de dois softwares usados para a simulação de algumas características eletromagnéticas de antenas _patch_ com base no tempo médio de execução. É disponibilizada uma amostra de tamanho 14, com os valores do tempo de execução da nova versão do software. Sabe-se que o tempo médio de simulação e a variância do software antigo são $\mu = 55s$ e $\sigma^2 = 100s^2$. 
+Pretende-se investigar se houve melhoria na nova versão do software com relação à metrica de desempenho do tempo de execução, dados os valores de média e variância citados anteriormente. Assume-se que o nível de significância para a média foi de 0,01. Já para a variância, ficou definido como 0,05.
+
+
+##  Análise com relação à média
+### Planejamento Experimental da média
+
+A definição da hipótese nula foi baseada na presunção de ausência de efeitos em relação à implementação do novo software, ou seja, não houve melhoria no desempenho, tendo como métrica o tempo de execução. Já na hipótese alternativa, espera-se que o tempo médio de execução seja menor quando comparado à versão anterior do software.
+$$\begin{cases} H_0: \mu >= 55&\\H_1: \mu<55\end{cases}$$
+
+### Análise de dados exploratória
+A base de dados da amostra de tempos de execução foi carregada e geradas informações a respeito da mesma.
+
+```{r}
+data <- read.table("CS01_data.csv", header = TRUE)
+head(data)
+summary(data)
+
+```
+De acordo com [colocar referência] o cálculo da magnitude do menor efeito de relevância prática (**d**) é dado por:
+$d = \frac{(\overline{x} - \mu)}{s}$ onde $\overline{x}$ é a média amostral, $\mu$ é a média populacional e $s$ é o desvio padrão amostral.
+
+Como interpretação do valor de **d**, optou-se por utilizar os valores de referência mostrados em [coloca ref: Cohen 1988, bib1, bibi2, bib3] onde são considerados:
+
+* Pequeno efeito de relevância prática: 0,20 $<=$ d $<=$ 0,50
+* Médio efeito de relevância prática: 0,50 $<=$ d $<=$ 0,80
+* Grande efeito de relevância prática: 0,80 $<=$ d 
+
+segundo [Cohen, bib4], quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou sega, $\beta=0.20$
+
+### Análise Estatística
+Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste **t**.
+
+
+```{r}
+t <- t.test(data[,1], mu = 55, stdev = 10, alternative = c("less"), n = length(data[,1]), 
+       conf.level = 0.99)
+t
+
+```
+
+
+O intervalo de confiança é: $-\inf$ a `r t$conf.int[2]`.
+
+Para a realização do teste de potência, foi definido que uma variação de 5 segundos em relação à média do tempo de execução do software seria relevante, uma vez que o valor de delta quantifica a incerteza pelo intervalo de confiança.
+
+```{r}
+power.t.test(n = length(data$run.time), delta = 5, sd = sd(data$run.time), sig.level = 0.01, type = "one.sample", alternative = "one.sided")
+```
+Uma vez que o poder do teste é menor que o limiar definido de 80% [linkar definição, citar slides], foi realizado novamente o teste para definir o menor tamanho amostral para um poder de teste de 80%.
+
+```{r}
+power.t.test(power = 0.80, delta = 5, sd = sd(data$run.time), sig.level = 0.01, type = "one.sample", alternative = "one.sided")
+
+```
+
+### Verificando as premissas do modelo
+Uma vez que o $p_{valor} = 0,007$ é menor que o nível de significância, $\alpha=0,01$, rejeita-se $h_0$. Como o resultado do cálculo do menor efeito de relevância prática **d** foi de aproximadamente -0,75, observamos que a diferença entre os valores médios de tempo de execução das duas versões comparadas do software, possuem médio efeito de relevância prática, conforme citado em [análise de dados exploratória].
+
+Apesar do p_valor ser expressivamente menor que o nível de significância $\alpha$, isso não tem alta relevância prática uma vez que o cálculo de **d** nos mostra que ele está no intervalo de média relevância prática.
+
+Com relação ao tamanho amostral, verificou-se que para alcançar um poder de teste de 80%, seria necessário ter um tamanho amostral de 18.
+
+
+
+## Análise com relação à variância
+
+### Planejamento Experimental
+No caso da variância, definiu-se a hipótese nula como sendo maior ou igual a 100. Já a hipótese alternativa como menor que 100, como segue:
+$$\begin{cases} H_0: \mu >= 100&\\H_1: \mu<100\end{cases}$$
+## Análise Estatística
+
+
+Foi realizado o teste **sigma** para variância de uma amostra, também disponível no pacote _TeachingDemos_.
+```{r}
+sigma.test(data[,1], sigma = 10, alternative = c("less"), n = length(data[,1]), 
+           conf.level = 0.95)
+```
+### Verificando as premissas do modelo
+Uma vez que o $p_{valor} = 0.01918$ é menor que o nível de significância, $\alpha=0,05$, rejeita-se $h_0$.
+O intervalo de confiança é definido como sendo o intervalo entre 0 e 80.14.
+Com isso deduzimos que a variância do novo software é menor que a da versão anterior.
+
+### Conclusões e recomendações
+Uma vez que, tanto nas análises em relação à média quanto em relação à variância, a hipótese nula foi rejeitada. Com isso podemos observar que não há evidências para afirmar que houve aumento do tempo médio de simulação e não houve aumento da variância dos tempos de execução do software, com isso recomenda-se que a nova versão do software de simulação seja utilizado.
+Uma possível maneira de melhorar os testes realizados seria a disponibilidade de um maior tamanho amostral representativo do problema.
