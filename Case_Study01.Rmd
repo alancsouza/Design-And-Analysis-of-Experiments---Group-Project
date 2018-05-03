@@ -32,18 +32,18 @@ setwd("C:/Users/Alan/Desktop/Mestrado UFMG/Disciplinas 2º semestre/Design and A
 require("TeachingDemos")
 
 ```
-
-
+## Resumo
+Uso da inferência estatística para avaliar se houve ganho de desempenho da nova versão de um _software_ em relação a versão atual.
+  
 # Descrição do problema
-O problema apresentado neste estudo de caso apresenta uma compararação de desempenho entre dois softwares usados para a simulação de características eletromagnéticas de antenas _patch_. A métrica utilizada para avaliar a nova versão de software é o tempo médio de execução. É disponibilizada uma amostra de tamanho 14, com os valores do tempo de execução da nova versão do software. Sabe-se que o tempo médio de simulação e a variância da versão antiga do software são respectivamente $\mu = 55s$ e $\sigma^2 = 100s^2$. 
+O problema deste estudo de caso apresenta uma comparação de desempenho entre dois _softwares_ usados para a simulação de características eletromagnéticas de antenas _patch_. A métrica utilizada para avaliar a nova versão de _software_ é o tempo médio de execução. Foi disponibilizada uma amostra de tamanho 14, com os valores do tempo de execução da nova versão do _software_. Sabe-se que o tempo médio de simulação e a variância da versão antiga do _software_ são respectivamente $\mu = 55s$ e $\sigma^2 = 100s^2$. 
 
-Dessa forma, pretende-se investigar se houve melhoria na nova versão do software com relação à metrica de desempenho do tempo de execução, dados os valores de média e variância citados. Assume-se que o nível de significância para a média foi de $0,01$. Já para a variância, ficou definido como $0,05$.
+Dessa forma, pretende-se investigar se houve melhoria na nova versão do _software_ com relação à metrica de desempenho do tempo de execução, dados os valores de média e variância citados. Assume-se que o nível de significância para a média foi de $0,01$ e para a variância foi de $0,05$.
 
 
 #  Análise com relação à média
 ## Planejamento Experimental
-
-A definição da hipótese nula foi baseada na presunção de ausência de efeitos em relação à implementação do novo software, ou seja, não houve melhoria no desempenho, tendo como métrica o tempo de execução. Já na hipótese alternativa, espera-se que o tempo médio de execução seja menor quando comparado à versão anterior do software.
+A definição da hipótese nula foi baseada na presunção de ausência de efeitos em relação à implementação do novo _software_, ou seja, não houve melhoria no desempenho, tendo como métrica o tempo de execução. Já na hipótese alternativa, espera-se que o tempo médio de execução seja menor quando comparado à versão anterior do software.
 $$\begin{cases} H_0: \mu >= 55&\\H_1: \mu<55\end{cases}$$
 
 ## Análise de dados exploratória
@@ -62,13 +62,14 @@ onde $\overline{x}$ é a média amostral, $\mu$ a média populacional e $s$ o de
 
 Segundo @ellis2010essential, é de fundamental importância a avaliação do tamanho de efeito, uma vez que a inferência estatítica, como a análise do teste $t$ e o $p_{valor}$, não avaliam o efeito prático dos resultados observados. Nesse contexto, @Campelo2015-01 ressalta ainda a necessidade de um conhecimento sólido da área em que se realiza os experimentos como premissa básica para uma análise adequada dos resultados.
 
-Como interpretação do valor de **d**, optou-se por utilizar os valores de referência mostrados em [coloca ref: Cohen 1988, bib1, bibi2, bib3] onde são considerados:
+Como interpretação do valor de **d**, optou-se por utilizar os valores de referência mostrados em @Cohen1988 @CONBOY2003 @ESPIRITO_SANTO2015 @LOUREIRO2011 onde são considerados:
 
 * Pequeno efeito de relevância prática: 0,20 $<=$ d $<=$ 0,50
 * Médio efeito de relevância prática: 0,50 $<=$ d $<=$ 0,80
 * Grande efeito de relevância prática: 0,80 $<=$ d 
 
-segundo [Cohen, bib4], quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou sega, $\beta=0.20$
+segundo @Cohen1998, quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou seja, $\beta=0.20$
+
 
 ## Análise Estatística
 Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste $t$ disponível no pacote _LessR_ (@lessR), de forma a gerar informações gráficas.
@@ -93,7 +94,7 @@ power <- power.t.test(n = length(data$run.time), delta = 5, sd = sd(data$run.tim
                       sig.level = 0.01, 
                       type = "one.sample", alternative = "one.sided")
 ```
-Uma vez que o poder do teste é menor que o limiar definido de 80% [linkar definição, citar slides], foi realizado novamente o teste para definir o menor tamanho amostral para um poder de teste de 80%.
+Uma vez que o poder do teste é menor que o limiar definido de 80% @Campelo2015-01, foi realizado novamente o teste para definir o menor tamanho amostral para um poder de teste de 80%.
 
 ```{r}
 power.t.test(power = 0.80, delta = 5, sd = sd(data$run.time), sig.level = 0.01, 
@@ -102,7 +103,7 @@ power.t.test(power = 0.80, delta = 5, sd = sd(data$run.time), sig.level = 0.01,
 ```
 
 ## Verificação das premissas do modelo
-Uma vez que o $p_{valor} = 0,008$ é menor que o nível de significância, $\alpha=0,01$, rejeita-se $h_0$. Como o resultado do cálculo do menor efeito de relevância prática $d$ foi de aproximadamente 0,75, observamos que a diferença entre os valores médios de tempo de execução das duas versões comparadas do software, possuem médio efeito de relevância prática, conforme citado em [análise de dados exploratória].
+Uma vez que o $p_{valor} = 0,008$ é menor que o nível de significância, $\alpha=0,01$, rejeita-se $h_0$. Como o resultado do cálculo do menor efeito de relevância prática $d$ foi de aproximadamente 0,75, observamos que a diferença entre os valores médios de tempo de execução das duas versões comparadas do software, possuem médio efeito de relevância prática.
 
 Apesar do $p_{valor}$ ser expressivamente menor que o nível de significância $\alpha$, isso não tem alta relevância prática uma vez que o cálculo de **d** nos mostra que ele está no intervalo de média relevância prática.
 
@@ -129,7 +130,7 @@ O intervalo de confiança é definido como sendo o intervalo entre `r sig$conf.i
 Com isso deduzimos que a variância do novo software é menor que a da versão anterior.
 
 # Conclusões e Recomendações
-Uma vez que, tanto nas análises em relação à média quanto em relação à variância, a hipótese nula foi rejeitada. Com isso podemos observar que não há evidências para afirmar que houve aumento do tempo médio de simulação e não houve aumento da variância dos tempos de execução do software, com isso recomenda-se que a nova versão do software de simulação seja utilizado.
+Uma vez que, tanto nas análises em relação à média quanto em relação à variância, a hipótese nula foi rejeitada. Com isso podemos observar que não há evidências para afirmar que houve aumento do tempo médio de simulação e não houve aumento da variância dos tempos de execução do _software_, com isso recomenda-se que a nova versão do software de simulação seja utilizado.
 Uma possível maneira de melhorar os testes realizados seria a disponibilidade de um maior tamanho amostral representativo do problema.
 
 # Referências
