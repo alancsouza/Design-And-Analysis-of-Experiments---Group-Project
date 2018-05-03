@@ -9,6 +9,7 @@ author:
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 abstract: |
   Este documento apresenta uma análise sobre a comparação de duas versões de software
+
 output:
   pdf_document:
     fig_caption: yes
@@ -16,7 +17,7 @@ output:
 bibliography: referencias.bib
 link-citations: yes
 ---
-\vspace{18cm}
+\vspace*{\fill}
 \centering
 Universidade Federal de Minas Gerais - Programa de Pós Graduação em Engenharia Elétrica
 
@@ -26,29 +27,27 @@ Universidade Federal de Minas Gerais - Programa de Pós Graduação em Engenhari
 \raggedright
 
 ```{r, include = 'false'}
+rm(list=ls())
 setwd("C:/Users/Alan/Desktop/Mestrado UFMG/Disciplinas 2º semestre/Design and Analysis of Experiments/Group Projects/Estudo de caso I")
 require("TeachingDemos")
 
 ```
 
 
-## Resumo
-Este documento apresenta uma análise sobre a comparação de duas versões de software
-
-### Descrição do problema
+# Descrição do problema
 O problema apresentado neste estudo de caso apresenta uma compararação de desempenho entre dois softwares usados para a simulação de características eletromagnéticas de antenas _patch_. A métrica utilizada para avaliar a nova versão de software é o tempo médio de execução. É disponibilizada uma amostra de tamanho 14, com os valores do tempo de execução da nova versão do software. Sabe-se que o tempo médio de simulação e a variância da versão antiga do software são respectivamente $\mu = 55s$ e $\sigma^2 = 100s^2$. 
 
 Dessa forma, pretende-se investigar se houve melhoria na nova versão do software com relação à metrica de desempenho do tempo de execução, dados os valores de média e variância citados. Assume-se que o nível de significância para a média foi de $0,01$. Já para a variância, ficou definido como $0,05$.
 
 
-##  Análise com relação à média
-### Planejamento Experimental
+#  Análise com relação à média
+## Planejamento Experimental
 
 A definição da hipótese nula foi baseada na presunção de ausência de efeitos em relação à implementação do novo software, ou seja, não houve melhoria no desempenho, tendo como métrica o tempo de execução. Já na hipótese alternativa, espera-se que o tempo médio de execução seja menor quando comparado à versão anterior do software.
 $$\begin{cases} H_0: \mu >= 55&\\H_1: \mu<55\end{cases}$$
 
-### Análise de dados exploratória
-A base de dados da amostra de tempos de execução é apresentada abaixo:
+## Análise de dados exploratória
+Para análise dos dados foi utilizada a [linguagem R] (http://www.R-project.org/) A base de dados da amostra de tempos de execução é apresentada abaixo:
 
 ```{r}
 data <- read.table("CS01_data.csv", header = TRUE)
@@ -71,19 +70,21 @@ Como interpretação do valor de **d**, optou-se por utilizar os valores de refe
 
 segundo [Cohen, bib4], quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou sega, $\beta=0.20$
 
-### Análise Estatística
-Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste **t**.
+## Análise Estatística
+Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste $t$ disponível no pacote _LessR_ (@lessR), de forma a gerar informações gráficas.
 
-
-```{r}
-t <- t.test(data$run.time, mu = 55, stdev = 10, alternative = c("less"), 
-            n = length(data$run.time), conf.level = 0.99)
-print(t)
-
+```{r message=FALSE}
+library('lessR')
 ```
 
 
-O intervalo de confiança é: $-\infty$ a `r t$conf.int[2]`.
+```{r figs,fig.cap="Análise estatística t"}
+mydata <- data$run.time
+ttest(mydata, mu0=55, graph = TRUE, alternative = "less", conf.level = 0.99)
+```
+
+
+O intervalo de confiança é: $-\infty$ a 54,76.
 
 Para a realização do teste de potência, foi definido que uma variação de 5 segundos em relação à média do tempo de execução do software seria relevante, uma vez que o valor de delta quantifica a incerteza pelo intervalo de confiança.
 
@@ -100,35 +101,35 @@ power.t.test(power = 0.80, delta = 5, sd = sd(data$run.time), sig.level = 0.01,
 
 ```
 
-### Verificando as premissas do modelo
-Uma vez que o $p_{valor} =$ `r t$p.value` é menor que o nível de significância, $\alpha=0,01$, rejeita-se $h_0$. Como o resultado do cálculo do menor efeito de relevância prática **d** foi de aproximadamente -0,75, observamos que a diferença entre os valores médios de tempo de execução das duas versões comparadas do software, possuem médio efeito de relevância prática, conforme citado em [análise de dados exploratória].
+## Verificação das premissas do modelo
+Uma vez que o $p_{valor} = 0,008$ é menor que o nível de significância, $\alpha=0,01$, rejeita-se $h_0$. Como o resultado do cálculo do menor efeito de relevância prática $d$ foi de aproximadamente 0,75, observamos que a diferença entre os valores médios de tempo de execução das duas versões comparadas do software, possuem médio efeito de relevância prática, conforme citado em [análise de dados exploratória].
 
 Apesar do $p_{valor}$ ser expressivamente menor que o nível de significância $\alpha$, isso não tem alta relevância prática uma vez que o cálculo de **d** nos mostra que ele está no intervalo de média relevância prática.
 
 Com relação ao tamanho amostral, verificou-se que para alcançar um poder de teste de 80%, seria necessário ter uma amostra de tamanho 18.
 
 
-## Análise com relação à variância
+# Análise com relação à variância
 
-### Planejamento Experimental
+
+## Planejamento Experimental
 No caso da variância, definiu-se a hipótese nula como sendo maior ou igual a 100. Já a hipótese alternativa como menor que 100, como segue:
 $$\begin{cases} H_0: \mu >= 100&\\H_1: \mu<100\end{cases}$$
 ## Análise Estatística
-
-
 Foi realizado o teste **sigma** para variância de uma amostra, também disponível no pacote _TeachingDemos_.
 ```{r}
 sig <- sigma.test(data$run.time, sigma = 10, alternative = c("less"), 
                   n = length(data$run.time), conf.level = 0.95)
 print(sig)
 ```
-### Verificando as premissas do modelo
+
+## Verificação das premissas do modelo
 Uma vez que o $p_{valor} =$ `r sig$p.value` é menor que o nível de significância, $\alpha=0,05$, rejeita-se $h_0$.
 O intervalo de confiança é definido como sendo o intervalo entre `r sig$conf.int[1]` e `r sig$conf.int[2]`.
 Com isso deduzimos que a variância do novo software é menor que a da versão anterior.
 
-### Conclusões e recomendações
+# Conclusões e Recomendações
 Uma vez que, tanto nas análises em relação à média quanto em relação à variância, a hipótese nula foi rejeitada. Com isso podemos observar que não há evidências para afirmar que houve aumento do tempo médio de simulação e não houve aumento da variância dos tempos de execução do software, com isso recomenda-se que a nova versão do software de simulação seja utilizado.
 Uma possível maneira de melhorar os testes realizados seria a disponibilidade de um maior tamanho amostral representativo do problema.
 
-## Referências
+# Referências
