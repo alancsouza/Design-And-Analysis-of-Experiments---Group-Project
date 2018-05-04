@@ -8,12 +8,13 @@ author:
 - "Patrícia Lucas"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 abstract: |
-  Este documento apresenta uma análise sobre a comparação de duas versões de software
+  Este documento apresenta o uso da inferência estatística para avaliar se houve ganho de desempenho de uma nova versão de um _software_ de simulação com relação à métrica de tempo de execução. A partir de uma base de dados que apresenta alguns valores de tempo de execução do _software_, as hipóteses estatísticas foram definidas. Posteriormente foram realizados testes estatísticos para avaliar a média e variância dos dados amostrais de forma a obter informações sobre a população estudada. Os resultados apresentaram evidências suficintes para a rejeição da hipótese nula, e, após uma análise do tamanho de efeito prático foi recomendada a utilização da nova versão do _software_ em detrimento da versão anterior. 
 
 output:
   pdf_document:
     fig_caption: yes
     number_sections: true
+geometry: margin=1in 
 bibliography: referencias.bib
 link-citations: yes
 ---
@@ -29,16 +30,16 @@ Universidade Federal de Minas Gerais - Programa de Pós Graduação em Engenhari
 ```{r, include = 'false'}
 rm(list=ls())
 setwd("C:/Users/Alan/Desktop/Mestrado UFMG/Disciplinas 2º semestre/Design and Analysis of Experiments/Group Projects/Estudo de caso I")
-require("TeachingDemos")
 
 ```
-## Resumo
-Uso da inferência estatística para avaliar se houve ganho de desempenho da nova versão de um _software_ em relação a versão atual.
+# Introdução
+Este documento apresenta um estudo de caso com o objetivo de implementar conceitos relacionados a inferência estatítica, análise de dados e reproducibilidade de pesquisa científica.
+Dessa forma, o documento é divido da seguinte forma: Na seção **2** o estudo de caso proposto é apresentado. Posteriormente, o documento é divido entre a análise estatística com relação à média apresentada em **3** que engloba o planejamento experimental **3.1**, a análise de dados **3.2**, análise estatística **3.3** e a verificação das premissas do modelo **3.4**. Já na parte da análise da variância mostrada em **4**, é apresentada em **4.1** a definição das hipóteses estatísticas com relação à variância, a análise estatística em **4.4** e **4.3** apresenta uma análise sobre as premissas do modelo da variância. Com isso, em **5** são derivadas conclusões e recomendações e por fim são apresentadas as referências utilizadas neste trabalho.
   
 # Descrição do problema
-O problema deste estudo de caso apresenta uma comparação de desempenho entre dois _softwares_ usados para a simulação de características eletromagnéticas de antenas _patch_. A métrica utilizada para avaliar a nova versão de _software_ é o tempo médio de execução. Foi disponibilizada uma amostra de tamanho 14, com os valores do tempo de execução da nova versão do _software_. Sabe-se que o tempo médio de simulação e a variância da versão antiga do _software_ são respectivamente $\mu = 55s$ e $\sigma^2 = 100s^2$. 
+O problema do presente estudo de caso apresenta uma comparação de desempenho entre dois _softwares_ usados para a simulação de características eletromagnéticas de antenas _patch_. A métrica utilizada para avaliar a nova versão é o tempo médio de execução. Foi disponibilizada uma amostra de tamanho 14, com os valores do tempo de execução da nova versão do _software_. Sabe-se que o tempo médio de simulação e a variância da versão antiga do mesmo são respectivamente $\mu = 55s$ e $\sigma^2 = 100s^2$. 
 
-Dessa forma, pretende-se investigar se houve melhoria na nova versão do _software_ com relação à metrica de desempenho do tempo de execução, dados os valores de média e variância citados. Assume-se que o nível de significância para a média foi de $0,01$ e para a variância foi de $0,05$.
+Dessa forma, pretende-se investigar se houve melhoria na nova versão apresentada, dados os valores de média e variância citados. Assume-se que o nível de significância para a média foi de $0,01$ e para a variância foi de $0,05$.
 
 
 #  Análise com relação à média
@@ -47,7 +48,7 @@ A definição da hipótese nula foi baseada na presunção de ausência de efeit
 $$\begin{cases} H_0: \mu >= 55&\\H_1: \mu<55\end{cases}$$
 
 ## Análise de dados exploratória
-Para análise dos dados foi utilizada a [linguagem R] (http://www.R-project.org/) A base de dados da amostra de tempos de execução é apresentada abaixo:
+Para análise dos dados foi utilizada a linguagem de computação estatística e gráfica R (@R). A base de dados da amostra de tempos de execução é apresentada abaixo:
 
 ```{r}
 data <- read.table("CS01_data.csv", header = TRUE)
@@ -56,36 +57,37 @@ summary(data)
 
 ```
 
-De acordo com @Campelo2015-01, uma das formas de estimar a magnitude do menor efeito de relevância prática é através do cálculo do estimador (**d**):
+De acordo com @Campelo2015-01, uma das formas de estimar a magnitude do menor efeito de relevância prática é através do cálculo do estimador $d$: 
+
 $$d = \frac{(\overline{x} - \mu)}{s}$$ 
 onde $\overline{x}$ é a média amostral, $\mu$ a média populacional e $s$ o desvio padrão amostral.
 
 Segundo @ellis2010essential, é de fundamental importância a avaliação do tamanho de efeito, uma vez que a inferência estatítica, como a análise do teste $t$ e o $p_{valor}$, não avaliam o efeito prático dos resultados observados. Nesse contexto, @Campelo2015-01 ressalta ainda a necessidade de um conhecimento sólido da área em que se realiza os experimentos como premissa básica para uma análise adequada dos resultados.
 
-Como interpretação do valor de **d**, optou-se por utilizar os valores de referência mostrados em @Cohen1988 @CONBOY2003 @ESPIRITO_SANTO2015 @LOUREIRO2011 onde são considerados:
+Como interpretação do valor de $d$, optou-se por utilizar os valores de referência mostrados em @cohen1988statistical, @CONBOY2003, @espirito2017 e @Loureiro2011, onde são considerados:
 
 * Pequeno efeito de relevância prática: 0,20 $<=$ d $<=$ 0,50
 * Médio efeito de relevância prática: 0,50 $<=$ d $<=$ 0,80
 * Grande efeito de relevância prática: 0,80 $<=$ d 
 
-segundo @Cohen1998, quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou seja, $\beta=0.20$
+segundo @cohen1988statistical, quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou seja, $\beta=0.20$
 
 
 ## Análise Estatística
-Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste $t$ disponível no pacote _LessR_ (@lessR), de forma a gerar informações gráficas.
+Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste $t$ disponível no pacote _LessR_ desenvolvido por @lessR, de forma a gerar informações gráficas para a análise dos parâmetros avaliados. Esse pacote apresenta ainda uma análise sobre apremissa de normalidade dos dados do Teorema do Limite Central, uma vez que, segundo @mordkoff2011, nem sempre essa premissa será válida.
 
 ```{r message=FALSE}
 library('lessR')
 ```
 
 
-```{r figs,fig.cap="Análise estatística t"}
+```{r figs,fig.cap="Análise estatística t", fig.align="center", fig.width = 6, fig.height = 4}
 mydata <- data$run.time
 ttest(mydata, mu0=55, graph = TRUE, alternative = "less", conf.level = 0.99)
 ```
 
 
-O intervalo de confiança é: $-\infty$ a 54,76.
+O intervalo de confiança é de $-\infty$ a 54,76.
 
 Para a realização do teste de potência, foi definido que uma variação de 5 segundos em relação à média do tempo de execução do software seria relevante, uma vez que o valor de delta quantifica a incerteza pelo intervalo de confiança.
 
@@ -94,7 +96,7 @@ power <- power.t.test(n = length(data$run.time), delta = 5, sd = sd(data$run.tim
                       sig.level = 0.01, 
                       type = "one.sample", alternative = "one.sided")
 ```
-Uma vez que o poder do teste é menor que o limiar definido de 80% @Campelo2015-01, foi realizado novamente o teste para definir o menor tamanho amostral para um poder de teste de 80%.
+Uma vez que o poder do teste é menor que o limiar definido de 80%, foi realizado novamente o teste para definir o menor tamanho amostral para que o poder de teste esperado seja alcançado.
 
 ```{r}
 power.t.test(power = 0.80, delta = 5, sd = sd(data$run.time), sig.level = 0.01, 
@@ -103,9 +105,9 @@ power.t.test(power = 0.80, delta = 5, sd = sd(data$run.time), sig.level = 0.01,
 ```
 
 ## Verificação das premissas do modelo
-Uma vez que o $p_{valor} = 0,008$ é menor que o nível de significância, $\alpha=0,01$, rejeita-se $h_0$. Como o resultado do cálculo do menor efeito de relevância prática $d$ foi de aproximadamente 0,75, observamos que a diferença entre os valores médios de tempo de execução das duas versões comparadas do software, possuem médio efeito de relevância prática.
+Uma vez que o $p_{valor} = 0,008$ é menor que o nível de significância, $\alpha=0,01$, rejeita-se $h_0$. Como o resultado do cálculo do menor efeito de relevância prática $d$ foi de aproximadamente 0,75, observamos que a diferença entre os valores médios de tempo de execução das duas versões comparadas do software, possuem médio efeito de relevância.
 
-Apesar do $p_{valor}$ ser expressivamente menor que o nível de significância $\alpha$, isso não tem alta relevância prática uma vez que o cálculo de **d** nos mostra que ele está no intervalo de média relevância prática.
+Apesar do $p_{valor}$ ser expressivamente menor que o nível de significância $\alpha$, isso não tem alta relevância prática uma vez que o cálculo de $d$ nos mostra que ele está no intervalo de média relevância prática.
 
 Com relação ao tamanho amostral, verificou-se que para alcançar um poder de teste de 80%, seria necessário ter uma amostra de tamanho 18.
 
@@ -116,8 +118,13 @@ Com relação ao tamanho amostral, verificou-se que para alcançar um poder de t
 ## Planejamento Experimental
 No caso da variância, definiu-se a hipótese nula como sendo maior ou igual a 100. Já a hipótese alternativa como menor que 100, como segue:
 $$\begin{cases} H_0: \mu >= 100&\\H_1: \mu<100\end{cases}$$
+
 ## Análise Estatística
-Foi realizado o teste **sigma** para variância de uma amostra, também disponível no pacote _TeachingDemos_.
+Foi realizado o teste **sigma** para variância de uma amostra, disponível no pacote _TeachingDemos_, cuja documentação pode ser consultada em @TeachinDemos.
+```{r message=FALSE}
+library('TeachingDemos')
+```
+
 ```{r}
 sig <- sigma.test(data$run.time, sigma = 10, alternative = c("less"), 
                   n = length(data$run.time), conf.level = 0.95)
@@ -130,7 +137,7 @@ O intervalo de confiança é definido como sendo o intervalo entre `r sig$conf.i
 Com isso deduzimos que a variância do novo software é menor que a da versão anterior.
 
 # Conclusões e Recomendações
-Uma vez que, tanto nas análises em relação à média quanto em relação à variância, a hipótese nula foi rejeitada. Com isso podemos observar que não há evidências para afirmar que houve aumento do tempo médio de simulação e não houve aumento da variância dos tempos de execução do _software_, com isso recomenda-se que a nova versão do software de simulação seja utilizado.
+Uma vez que, tanto nas análises em relação à média quanto em relação à variância, a hipótese nula foi rejeitada, podemos supor que não há evidências para afirmar que houve aumento do tempo médio de simulação e que também não houve aumento da variância dos tempos de execução do _software_, com isso recomenda-se que a nova versão do software de simulação seja utilizada.
 Uma possível maneira de melhorar os testes realizados seria a disponibilidade de um maior tamanho amostral representativo do problema.
 
 # Referências
