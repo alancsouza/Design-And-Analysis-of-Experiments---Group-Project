@@ -2,10 +2,10 @@
 title: 'Análise do Desempenho de uma Nova Versão de Software'
 subtitle: 'Estudo de Caso 01'
 author: 
-- "Alan Souza"
-- "Alex Assis"
-- "Luíza Guimarães"
-- "Patrícia Lucas"
+- "Alan Souza (Relator)"
+- "Alex Assis (Verificador)"
+- "Luíza Guimarães (Monitora)"
+- "Patrícia Lucas (Coordenadora)"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 abstract: |
   Este documento apresenta o uso da inferência estatística para avaliar se houve ganho de desempenho de uma nova versão de um _software_ de simulação com relação à métrica de tempo de execução. A partir de uma base de dados que apresenta alguns valores de tempo de execução do _software_, as hipóteses estatísticas foram definidas. Posteriormente foram realizados testes estatísticos para avaliar a média e variância dos dados amostrais de forma a obter informações sobre a população estudada. Os resultados apresentaram evidências suficintes para a rejeição da hipótese nula, e, após uma análise do tamanho de efeito prático foi recomendada a utilização da nova versão do _software_ em detrimento da versão anterior. 
@@ -70,7 +70,7 @@ Como interpretação do valor de $d$, optou-se por utilizar os valores de refer�
 * Médio efeito de relevância prática: 0,50 $<=$ d $<=$ 0,80
 * Grande efeito de relevância prática: 0,80 $<=$ d 
 
-segundo @cohen1988statistical, quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou seja, $\beta=0.20$
+segundo @cohen1988statistical, quando o investigador não tem outra base para definir o valor da potência, usa-se o valor 0.80, ou seja, $\beta=0.20$.
 
 
 ## Análise Estatística
