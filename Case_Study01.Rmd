@@ -34,7 +34,7 @@ setwd("C:/Users/Alan/Desktop/Mestrado UFMG/Disciplinas 2º semestre/Design and A
 ```
 # Introdução
 Este documento apresenta um estudo de caso com o objetivo de implementar conceitos relacionados a inferência estatítica, análise de dados e reproducibilidade de pesquisa científica.
-Dessa forma, o documento é divido da seguinte forma: Na seção **2** o estudo de caso proposto é apresentado. Posteriormente, o documento é divido entre a análise estatística com relação à média apresentada em **3** que engloba o planejamento experimental **3.1**, a análise de dados **3.2**, análise estatística **3.3** e a verificação das premissas do modelo **3.4**. Já na parte da análise da variância mostrada em **4**, é apresentada em **4.1** a definição das hipóteses estatísticas com relação à variância, a análise estatística em **4.4** e **4.3** apresenta uma análise sobre as premissas do modelo da variância. Com isso, em **5** são derivadas conclusões e recomendações e por fim são apresentadas as referências utilizadas neste trabalho.
+Dessa forma, o documento é divido da seguinte forma: Na seção **2** o estudo de caso proposto é apresentado. Posteriormente, o documento é divido entre a análise estatística com relação à média apresentada na seção **3** que engloba o planejamento experimental na subseção **3.1**, a análise de dados na subseção **3.2**, análise estatística na subseção **3.3** e a verificação das premissas do modelo na subseção **3.4**. Já na parte de análise da variância mostrada na seção **4**, é apresentada na subseção **4.1** a definição das hipóteses estatísticas com relação à variância, a análise estatística nas subseções **4.3** e **4.4** apresentam uma análise sobre as premissas do modelo da variância. Com isso, na seção **5** são derivadas conclusões e recomendações e por fim são apresentadas as referências utilizadas neste trabalho.
   
 # Descrição do problema
 O problema do presente estudo de caso apresenta uma comparação de desempenho entre dois _softwares_ usados para a simulação de características eletromagnéticas de antenas _patch_. A métrica utilizada para avaliar a nova versão é o tempo médio de execução. Foi disponibilizada uma amostra de tamanho 14, com os valores do tempo de execução da nova versão do _software_. Sabe-se que o tempo médio de simulação e a variância da versão antiga do mesmo são respectivamente $\mu = 55s$ e $\sigma^2 = 100s^2$. 
@@ -44,7 +44,7 @@ Dessa forma, pretende-se investigar se houve melhoria na nova versão apresentad
 
 #  Análise com relação à média
 ## Planejamento Experimental
-A definição da hipótese nula foi baseada na presunção de ausência de efeitos em relação à implementação do novo _software_, ou seja, não houve melhoria no desempenho, tendo como métrica o tempo de execução. Já na hipótese alternativa, espera-se que o tempo médio de execução seja menor quando comparado à versão anterior do software.
+A definição da hipótese nula foi baseada na presunção de ausência de efeitos em relação à implementação do novo _software_, ou seja, não houve melhoria no desempenho, tendo como métrica o tempo de execução. Já na hipótese alternativa, espera-se que o tempo médio de execução seja menor quando comparado à versão anterior do _software_.
 $$\begin{cases} H_0: \mu >= 55&\\H_1: \mu<55\end{cases}$$
 
 ## Análise de dados exploratória
@@ -60,7 +60,7 @@ summary(data)
 De acordo com @Campelo2015-01, uma das formas de estimar a magnitude do menor efeito de relevância prática é através do cálculo do estimador $d$: 
 
 $$d = \frac{(\overline{x} - \mu)}{s}$$ 
-onde $\overline{x}$ é a média amostral, $\mu$ a média populacional e $s$ o desvio padrão amostral.
+onde $\overline{x}$ é a média amostral, $\mu$ é a média populacional e $s$ é o desvio padrão amostral.
 
 Segundo @ellis2010essential, é de fundamental importância a avaliação do tamanho de efeito, uma vez que a inferência estatítica, como a análise do teste $t$ e o $p_{valor}$, não avaliam o efeito prático dos resultados observados. Nesse contexto, @Campelo2015-01 ressalta ainda a necessidade de um conhecimento sólido da área em que se realiza os experimentos como premissa básica para uma análise adequada dos resultados.
 
@@ -74,7 +74,7 @@ segundo @cohen1988statistical, quando o investigador não tem outra base para de
 
 
 ## Análise Estatística
-Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste $t$ disponível no pacote _LessR_ desenvolvido por @lessR, de forma a gerar informações gráficas para a análise dos parâmetros avaliados. Esse pacote apresenta ainda uma análise sobre apremissa de normalidade dos dados do Teorema do Limite Central, uma vez que, segundo @mordkoff2011, nem sempre essa premissa será válida.
+Inicialmente utilizou-se o teste estatístico para a média. Como a variância é desconhecida e têm-se um tamanho amostral [pequeno](http://www.statisticshowto.com/probability-and-statistics/hypothesis-testing/t-score-vs-z-score/), foi utilizado o teste $t$ disponível no pacote _LessR_ desenvolvido por @lessR, de forma a gerar informações gráficas para a análise dos parâmetros avaliados. Esse pacote apresenta ainda uma análise sobre a premissa de normalidade dos dados do Teorema do Limite Central, uma vez que, segundo @mordkoff2011, nem sempre essa premissa será válida.
 
 ```{r message=FALSE}
 library('lessR')
