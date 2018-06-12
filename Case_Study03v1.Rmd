@@ -1,5 +1,5 @@
 ---
-title: "Comparação de configurações de um método de otimização"
+title: "Comparação de desempenho de duas configurações de um algoritmo de otimização, parte II"
 author:
 - Alan Souza (Monitor)
 - Alex Assis (Coordenador)
@@ -16,7 +16,7 @@ output:
 bibliography: referencias.bib
 link-citations: yes
 geometry: margin=1in
-subtitle: Estudo de Caso 02
+subtitle: Estudo de Caso 03
 ---
 
 \pagenumbering{gobble}
@@ -32,30 +32,25 @@ Programa de Pós-Graduação em Engenharia Elétrica - Universidade Federal de M
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
 ```
 
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#
 # Bibliotecas
-#
+
 library(ExpDE)
-#install.packages("lessR")
-#library(lessR) 
-#install.packages("car")
-library(car) # teste de durbin Watson
-#install.packages("nortest")
-library(nortest) # teste de normalidade e grÃ¡fico de probabilidade normal
-#install.packages("effsize") 
+library(lessR) 
+library(car) # teste de Durbin-Watson
+library(nortest) # teste de normalidade e gráfico de probabilidade normal
 library("effsize") # teste d-Cohen
 library(stats)
 ```
 
 ```{r, include=FALSE,  echo=FALSE}
-#
 # Parâmetros fixos
-#
+
 selpars  <- list(name = "selection_standard")
 stopcrit <- list(names = "stop_maxeval", maxevals = 50000, maxiter = 1000)
 probpars <- list(name = "sphere", xmin = -seq(1,20), xmax = 20 +5 * seq(5,24))
@@ -69,67 +64,61 @@ nivelConfianca <- 1-alpha
 ## Config 1
 recpars1 <- list(name = "recombination_blxAlphaBeta", alpha = 0.4, beta = 0.4) 
 mutpars1 <- list(name = "mutation_rand", f = 4)
-popsize1 <- 230
 
 ## Config 2
 recpars2 <- list(name = "recombination_wright")
 mutpars2 <- list(name = "mutation_best", f = 4.8)
-popsize2 <- 113
 ```
 
 
 ```{r, include=FALSE, echo=FALSE}
-setwd("C:/Users/Alan/Desktop/Mestrado UFMG/Disciplinas 2º semestre/Design and Analysis of Experiments/Group Projects/Estudo de caso III")
+#setwd("C:/Users/Alan/Desktop/Mestrado UFMG/Disciplinas 2º semestre/Design and Analysis of Experiments/Group Projects/Estudo de caso III/Case Study 03")
 ```
 
 ```{r , include=FALSE, echo=FALSE}
 ## Leitura dos dados
-dados <- read.csv("amostras.csv")
+dados <- read.csv("amostras.csv", header = FALSE, sep = ";")
 colnames(dados) <- c("amostras1", "amostras2")
-head(dados)
-
-dim(dados)
 ```
 
+# Introdução
 
-# Formulação das hipóteses de teste
-**Parâmetro de interesse:** Os parâmetros de interesse são $\mu_1$ e $\mu_2$, o desempenho médio do algoritmo usando as configurações 1 e 2. 
+A análise do desempenho de algoritmos é uma tarefa recorrente de pesquisadores, onde buscam-se evidências concretas para a adoção de uma nova proposta em comparação com o estado da arte ou diferentes configurações do novo método proposto. Dessa forma, este trabalho apresenta a análise estatística de comparação pareada do desempenho de duas diferentes configurações de um método de otimização baseado no algorítmo de Evolução diferencial @storn1997differential. Para tanto foram geradas duas configurações do algorítmo através do pacote ExpDE @Campelo:2016:EIR:2908812.2908852 e aplicado no conjunto de funções de @rosenbrock1960automatic, que é um conjunto de funções não-convexas comumente utilizado como teste de desempenho de algoritmos de otimização. 
 
-Queremos saber se há alguma diferença no desempenho médio do algoritmo quando equipado com estas diferentes configurações, para o problema de teste utilizado. $\mu_1-\mu_2 = 0$
-
-$$\begin{cases} H_0: \mu_D = 0&\\H_1: \mu_D > 0\end{cases}$$
-
-
-**Hipótese nula:** $H_0: \mu_1-\mu_2 = 0 \quad \Rightarrow \quad\mu_1 = \mu_2$
-
-A hipótese nula considera que o desempenho médio dos algoritmos não apresenta diferenças significativas.
-
-**Hipótese alternativa:** $H_1: \mu_1 >= \mu_2$
-
-Na hipótese alternativa considera que existe diferença no desempenho médio das configurações 1 e 2.
-
-# Cálculo do tamanho amostral
-
-Foi utilizado o _power.t.test_ para calcular o tamanho amostral necessário para se obter um poder de teste de $85\%$.
-
-```{r}
-power <- power.t.test(delta = 0.5, sig.level = 0.05, power = 0.80,
-                      type = "paired", alternative = "one.sided")
-print(power)
-```
 Os seguintes parâmetros experimentais são dados para este estudo:
 
 - Mínima diferença de importância prática (padronizada): ($d^* = \delta^*/\sigma = 0.50$)
 - Significância desejada: $\alpha = 0.05$
 - Potência máxima desejada (para o caso $d = d^*$): $\pi = 1 - \beta = 0.80$
 
-A partir da realização do teste t, o número necessário de amostras para atingir a potência de `r power$power` para o mínimo de relevância prática de `r power$delta`, é de `r ceiling(power$n)` amostras aplicadas para cada grupo.
+
+# Formulação das hipóteses de teste
+
+Queremos saber se há alguma diferença no desempenho médio do algoritmo quando equipado com estas diferentes configurações, para o problema de teste utilizado. Por se tratar de uma análise pareada, o parâmetro de interesse é baseado na diferença do desempenho médio de cada configuração: $\mu_D = \mu_1 - \mu_2$ 
+
+$$\begin{cases} H_0: \mu_D = 0&\\H_1: \mu_D \neq 0\end{cases}$$
+
+
+# Cálculo do tamanho amostral
+
+Foi utilizado o _power.t.test_ para calcular a quantidade de amostras necessárias para se obter um poder de teste de $80\%$.
+
+```{r}
+power <- power.t.test(delta = 0.5, sig.level = 0.05, power = 0.80,
+                      type = "paired", alternative = "two.sided")
+
+```
+```{r eval=TRUE, echo=FALSE}
+print(power)
+```
+
+
+A partir da realização do teste de potência, concluiu-se que o número necessário de amostras para atingir a potência de `r power$power` para o mínimo de relevância prática de `r power$delta`, é de `r ceiling(power$n)` amostras aplicadas para cada grupo.
 
 # Coleta e tabulação dos dados
-Os dados de interesse deste trabalho foram gerandos pelas funções de _Rosenbrock_ para dimensões de dim={3, 10, 17, 26, 29, 30, 31, 35, 41, 42, 48, 49, 51, 54, 57, 59, 68, 72, 84, 86, 90, 95, 96, 97, 103, 105, 107}, escolhidas aleatoriamente no intervalo de 2 à 150. 
-Para cada instância gerada nas configurações 1 e 2, foi feita a média de 30 repetições para cada instância.
+Os dados de interesse deste trabalho foram gerandos pelas funções de _Rosenbrock_ para dimensões de dim={3, 10, 17, 26, 29, 30, 31, 35, 41, 42, 48, 49, 51, 54, 57, 59, 68, 72, 84, 86, 90, 95, 96, 97, 103, 105, 107, 120, 122, 125, 131, 132, 134, 137}, escolhidas aleatoriamente no intervalo de 2 a 150. 
+Para cada instância gerada nas configurações 1 e 2, foi feita a média de 30 repetições para cada instância, gerando `r length(dados$amostras1)` amostras .
 
-Para cada configuração foram coletadas `r length(dados$amostras1)` valores das melhores execuções para análise. Dados:
 
 * Amostra 1: 
 ```{r eval=TRUE, echo=FALSE}
@@ -147,37 +136,45 @@ Foi utilizado o teste _t-Student_ para diferença de médias de duas distribuiç
 ```{r}
 t_test <- t.test(dados$amostras1, dados$amostras2, 
                  paired = TRUE, 
-                 alternative = "greater", 
+                 alternative = "two.sided", 
                  conf.level = 0.95)
+
+```
+```{r eval=TRUE, echo=FALSE}
 print(t_test)
 ```
-Uma vez que o valor de $p-valor = $ `r t_test$p.value`  excede o valor de $\alpha = 0.05$, não temos evidências suficientes para rejeitar a hipótese nula no  nível de significância de 0.05 dada a hipótese nula de que o desempenho da configuração 2 resulta em um desempenho médio que difere da configuração 1. 
 
-Uma vez que o valor de $p-valor = $ `r t_test$p.value`  excede o valor de $\alpha = 0.05$, não temos evidências suficientes para rejeitar a hipótese nula no  nível de significância de 0.05 não temos evidência fortes para concluir que o desempenho da configuração 2 resulta em um desempenho médio que difere da configuração 1. 
+
+Uma vez que o valor de p-valor = `r round(t_test$p.value, digits = 3)`  excede o valor de $\alpha = 0.05$, não temos evidências suficientes para rejeitar a hipótese nula no  nível de significância de 0.05 dada a hipótese nula de que o desempenho da configuração 2 resulta em um desempenho médio que difere da configuração 1. 
+
 
 
 Teste-t e IC (intervalo de confiança) para duas Amostras, Configuração 1 (Conf. 1) e Configuração 2 (Config. 2):
 
-Conf. 1: n = `r length(dados$amostras1)`, $\bar x =$ `r mean(dados$amostras1)`, s =  `r sd(dados$amostras1)`
+Conf. 1: n = `r length(dados$amostras1)`, 
+$\overline{x} =$ `r paste0(round(mean(dados$amostras1), digits=2))`, 
+s = `r paste0(round(sd(dados$amostras1), digits=2))`
 
-Conf. 2: n = `r length(dados$amostras2)`, $\bar x =$ `r mean(dados$amostras2)`, s =  `r sd(dados$amostras2)`
+Conf. 2: n = `r length(dados$amostras2)`, 
+$\overline{x} =$ `r paste0(round(mean(dados$amostras2), digits=2))`, 
+s = `r paste0(round(sd(dados$amostras2), digits=2))`
 
-Diferença de $\mu_1 - \mu_2$
-
-Teste-t da diferença:
+Teste-t pareado:
 
 t = `r t_test$statistic`
 
 Graus de liberdade: `r t_test$parameter`
 
-_p-valor_ = `r t_test$p.value`
+_p-valor_ = `r round(t_test$p.value, digits = 3)`
 
-Intervalo de confiança de $95\%$ para a diferença: ($-92340.71$ a $+\infty$)
+
+
+Intervalo de confiança de 95\%: `r paste0(round(t_test$conf.int[1]), digits=2)` a `r paste0(round(t_test$conf.int[2]), digits=2)`
 
 
 # Estimação do tamanho de efeito e intervalo de confiança
 
-O cálculo do tamanho de efeito com o método de *d de Cohen* é indicado quando as duas populações que estão sendo comparadas são contínuas e de distribuição normal. Podemos entender que quanto maior o tamanho do efeito, maior é o impacto que a variável central do experimento está causando e mais importante se torna o fato dela ter uma contribuição para a questão analisada. @LINDENAU:2012
+O cálculo do tamanho de efeito com o método de *d de Cohen* é indicado quando as duas populações que estão sendo comparadas são contínuas e de distribuição normal. Podemos entender que quanto maior o tamanho do efeito, maior é o impacto que a variável central do experimento está causando e mais importante se torna o fato dela ter uma contribuição para a questão analisada, @LINDENAU:2012.
 
 
 ```{r}
@@ -188,34 +185,32 @@ media = matrix(t_test$estimate)
 d <- (media)/s_agregado
 
 print(paste0("d = ", as.numeric(d)))
-
-d_cohen <- cohen.d.default(dados$amostras1, dados$amostras2)
-
 ```
-Para o nosso problema assuma a igualdade da variância do desempenho entre as populações. Com a magnitude de efeito _d_ = `r d` de *Cohen*, assim de acordo com a tabela $z$ padronizada, em casos futuros cerca de $59\%$ das amostras do grupo experimental excederão o valor médio do grupo.
+```{r echo=FALSE}
+d_cohen <- cohen.d.default(dados$amostras1, dados$amostras2)
+d_cohen
+```
 
-O Intervalo de confiança (IC) de `r 100*d_cohen$conf.level` para a diferença: IC = (`r d_cohen$conf.int[1]`, `r d_cohen$conf.int[2]`),
-temos que o tamanho de efeito $d \in IC$, desta forma temos que _d_ está dentro do intervalo de valores plausíveis.
 
-Dado o valor de *d* obtido acima, podemos observar que a distância entre as médias é bem pequena.
+Com a estimação da magnitude de efeito _d_ = `r round(d, 4)`, temos que a probabilidade do intervalor de confiança (`r d_cohen$conf.int[1]`, `r d_cohen$conf.int[2]`) conter o verdadeiro valor de _d_ é de `r 100*d_cohen$conf.level`\%.
+Dado o valor da estimativa do tamanho de efeito obtido acima, podemos observar que a distância entre as médias é pequena em termos do desvio padrão das amostras.
 
 
 # Verificação das premissas dos testes
 
-Como premissas do teste, foi assumido que as amostras possuem distribuição normal, com variâncias equivalentes e que são independentes.
-
+Como premissas dos testes realizados neste trabalho, foi assumido que as amostras possuem distribuição normal e com variâncias equivalentes.
 
 ## Premissa de normalidade
 
-Para a premissa de normalidade, foi realizado o teste _Shapiro-Wilk_, que assume como hipótese nula que a distribuição dos dados provém de uma distribuição normal. O _p-valor_ de cada amostra apresentou valores bem baixos, rejeitando-se a hipótese nula de normalidade dos dados. 
+Para a premissa de normalidade, foi realizado o teste _Shapiro-Wilk_, que assume como hipótese nula que a distribuição dos dados provém de uma distribuição normal. Como o _p-valor_ foi maior que $\alpha = 0.01$, não temos evidências suficientes para rejeitar a hipótese nula de normalidade dos dados. 
 
 ```{r}
-difTimes<-with(dados,
-            amostras1-amostras2)
-head(difTimes)
+difTimes<-with(dados,amostras1-amostras2)
+
+shapiro.test(difTimes)
 ```
 
-## teste gráfico
+Foi realizado ainda uma análise gráfica da normalidade que corrobora com as conclusões obitidas através do teste anterior, uma vez que todos os pontos estão próximos da reta, descrevendo a distribuição normal dos dados.
 
 ```{r}
 library(car)
@@ -224,85 +219,13 @@ qqPlot(difTimes,
        cex=1.5,
        las=1)
 
-# Highlight the observed outlier
-indx<-which(difTimes==max(difTimes))
-pt<-qqnorm(difTimes,plot.it=F)
-points(pt$x[indx],pt$y[indx],pch=1,cex=2,col=2)
-
 ```
 
-
-```{r}
-shapiro.test(difTimes)
-```
-
-Foi realizado ainda o teste Kolmogorov-Smirnov, o qual corrobora com os resultados apresentados no teste Shapiro-Wilk:
-```{r}
-ks.test(dados$amostras1, y =  "pnorm", alternative = "less")
-ks.test(dados$amostras2, y =  "pnorm", alternative = "less")
-```
-
-Entretanto, segundo @Campelo2015-01, é importante comparar os resultados juntamente com uma análise gráfica. Dessa forma, a normalidade dos dados das amostras 1 e 2 foi analisada nos gráficos de probabilidade normal abaixo:
-
-```{r}
-#
-# Gráfico de probabilidade normal
-#
-par(mfrow = c(1,2))
-qqnorm(dados$amostras1, main="Amostra 1", xlab = "",
-       ylab = "Desempenho", pch = 20)
-qqline(dados$amostras1, lty = 2, col = "red")
-qqnorm(dados$amostras2, main="Amostra 2", xlab = "",
-       ylab = "Desempenho", pch = 20, col = "blue")
-qqline(dados$amostras2, lty = 2, col = "red")
-
-```
-
-```{r}
-
-par(mfrow = c(1,2))
-qqPlot(dados$amostras1, pch=16, cex=1, las=1)
-qqPlot(dados$amostras2, pch=16, cex=1, las=1)
-```
-Pode-se observar nos gráficos acima que a distribuição possui um calda acentuada à direita, caracterizando que não se trata de uma distribuição normal de dados.
-
-Como a premissa de normalidade não trata necessariamente da distribuição normal dos dados, e sim da distribuição normal das médias dos dados, foram coletadas amostras dos dados de teste de forma aleatória, calculada a média e criado um vetor de médias composto pela média de cada sub-amostra da amostra da população.
-
-```{r}
-# Função que gera sub-amostras e calcula a média
-calcula_medias_amostrais <- function(dados){
-  medias_amostrais <- rep(0,20)
-  
-  for(idx in 1:length(medias_amostrais)){
-    medias_amostrais[idx] <- mean(sample(dados, 50, replace = FALSE))
-  }
-  
-  medias_amostrais
-}
-
-```
-
-```{r}
-#medias_amostras1 <- calcula_medias_amostrais(dados$amostras1)
-#medias_amostras2 <- calcula_medias_amostrais(dados$amostras2)
-
-#par(mfrow = c(1,2))
-#hist(medias_amostras1)
-#hist(medias_amostras2)
-
-```
-
-```{r}
-##shapiro.test(medias_amostras2)
-```
-Embora o _p-valor_ do teste Shapiro-Wilk para as médias indica evidências para aceitar a hipótese de normalidade das médias, resta verificar a validade desse subamostragem para assumir de fato a premissa de normalidade, dado que o histograma das médias não se comporta exatamente como uma gaussiana.
-
-Para casos como este, é recomendada a realização das versões dos testes não-paramétricos (teste t e de potência), entretanto, dada a robustez do teste t para amostras que não são distribuídas por uma normal, optou-se por manter os testes paramétricos.
 
 
 ## Premissa de homogeneidade de variâncias
 
-Para a premissa de homogeneidade de variâncias foi realizado o teste Fligner-Killeen, que apresentou evidências pra se aceitar a hipótese nula de igualdade da variância dos dados:
+Para a premissa de homogeneidade de variâncias foi realizado o teste Fligner-Killeen, que não apresentou evidências suficientes pra rejeitar a hipótese nula de igualdade da variância dos dados com nivel de confiança de 99\%:
 
 
 ```{r}
@@ -314,8 +237,8 @@ fligner.test(dados_amostrais)
 ```{r}
 media1 <- mean(dados$amostras1)
 media2 <- mean(dados$amostras2)
-m1 <- rep(media1, 27)
-m2 <- rep(media2, 27)
+m1 <- rep(media1, nrow(dados))
+m2 <- rep(media2, nrow(dados))
 m <- rbind(m1,m2)
 resid1 <- dados$amostras1 - media1
 resid2 <- dados$amostras2 - media2
@@ -324,68 +247,30 @@ residuo <- rbind(resid1, resid2)
 
 plot(m, residuo)
 ```
-
+Fizemos ainda uma análise gráfica das duas distribuições. Podemos notar que a variação dos dados é bem semelhante em ambos os casos.
+```{r}
+par(mfrow = c(1,2))
+boxplot(dados$amostras1)
+boxplot(dados$amostras2)
+```
 
 
 
 ## Premissa de independência
 
-Uma vez que, segundo @Campelo2015-01, não existe um teste geral para a análise da premissa de independência, foi realizado o teste Durbin-Watson de autocorrelação serial.
+Consideramos a dependência dos dados dada a maneira o experimento foi executado, uma vez que os dados foram gerados do mesmo computador com as mesmas configurações de _hardware_.
 
-
-```{r}
-durbinWatsonTest(lm(dados$amostras1 ~ 1))
-```
-
-```{r}
-durbinWatsonTest(lm(dados$amostras2 ~ 1))
-```
-
-Dessa forma, através da interpretação do _p-valor_, não podemos rejeitar a hipótese nula de independência dos dados em $99\%$.
 
 # Conclusões
 
-De acordo com os resultados obtidos pelo _t.test_, realizado após o cálculo do novo tamanho amostral, observamos que a hipótese nula não pode ser rejeitada. É necessário recalcular o tamanho amostral, para encontrar o número mínimo de amostras necessárias para evitar o erro tipo II, ou seja, a hipótese nula não poder ser rejeitada enquanto ela deveria ser rejeitada. Portanto, o desempenho médio dos algoritmos não apresenta diferenças significativas.
+De acordo com os resultados obtidos pelo _t.test_, observamos que não existem evidências suficientes para rejeitar a hipótese nula de igualdade do desempenho médio dos dois algoritmos, com um nível de confiança 95\%. O tamanho de efeito calculado a partir do estimador *d de Cohen* corrobora com o resultado do teste t, portanto, não há diferenças significativas entre as médias, isso não indica propriamente que as mesmas sejam iguais, mas assegura que os resultados apresentam efeitos relevantes na prática.
 
-A pequena distância entre as médias, obtida através do tamanho de efeito calculado, $d = $ `r d`, não indica propriamente que as médias sejam iguais, ou que não exista um efeito substantivo, significa sim que não houve evidência suficientemente forte para provar que essas diferenças eram significativas.
+Portanto, conclui-se que não há evidências suficiente entre as diferença no desempenho médio do algoritmo quando equipado com essas configurações.
 
-Dessa forma, dada a similaridade entre as duas configurações, conclui-se que ambas podem ser utilizados uma vez que apresentam performances equivalentes.
+Como os dois algoritmos apresentam performaces equivalentes, é necessário avaliar outros critérios para decidir qual a opção do melhor algoritmo, como por exemplo a interface amigavel, entre outros.
+
 
 # Discussão sobre possíveis limitações do estudo e sugestões de melhoria.
 Uma limitação do estudo é o tempo necessário para geração de um grande número de amostras.
 
-# Questão bônus
-
-_Há alguma diferença na variância do desempenho das duas configurações para o problema de teste? Como esta eventual diferença (caso haja) impacta nas suas recomendações relativas à adoção de uma dada configuração?_
-
-
-R: Para avaliar se há diferenÃ§a significante na variância do desempenho foi utilizado o método *Friedman two-way analysis of variance*, com n @Campelo:2016:EIR:2908812.2908852
-
-**Hipótese nula:** $H_0: \mu_1 = \mu_2$
-
-A hipótese nula considera que a variância média do desempenho das configurações 1 e 2 não apresenta diferenças significativas.
-
-**Hipótese alternativa:** $H_1: \mu_1 \ne \mu_2$
-
-Na hipótese alternativa considera-se que existe diferença na variância média do desempenho das configurações 1 e 2.
-
-```{r, echo=FALSE}
-
-# Teste de Friedman baseado no artigo: Experimental Investigation of Recombination Operators for Differential Evolution
-#
-m_mydata <- matrix(dados$amostras1, ncol = 1)
-m_mydata <- cbind(m_mydata, dados$amostras2)
-dimnames(m_mydata) <- list(c(1:nrow(m_mydata)), c("Amostra1", "Amostra2"))
-
-friedman = friedman.test(m_mydata)
-print(friedman)
-```
-Com  tableofcontent = 0.7422, não temos evidências suficientes para rejeitar a hipótese nula, portanto não podemos afirmar que existem diferenças significativas na variância das amostras analisadas.
-
-A dispersão das amostras pode ser visualizada no gráfico abaixo:
-
-
-```{r, echo=FALSE}
-boxplot(m_mydata, ylab = "Desempenho")
-```
 # Referências
